@@ -14,6 +14,7 @@ import qualified Data.Histogram as H
 
 import Diagrams.Backend.PGF
 
+
 -- TODO
 -- move
 renderHistos :: (IntervalBin b, BinValue b ~ Double) => FilePath -> Double -> [Histogram b Double] -> IO ()
@@ -30,9 +31,10 @@ type PtErr2D = ((Double, (Double, Double)), (Double, (Double, Double)))
 
 type Graph2D = [PtErr2D]
 
+
 histToGraph :: (Bin b, IntervalBin b, BinValue b ~ Double) => Histogram b Double -> Graph2D
 histToGraph = map toPoint . toTuples
-    where toPoint ((xlo, xhi), d) = let x0 = (xlo+xhi)/2.0
+    where toPoint ((xlo, xhi), d) = let x0 = avg xlo xhi
                                  in  ((x0, (xhi-x0, x0-xlo)), (d, (0, 0)))
 
           toTuples :: (Bin b, H.IntervalBin b, V.Unbox v) => Histogram b v -> [((BinValue b, BinValue b), v)]
@@ -130,6 +132,7 @@ line xyi xyf = let (xi, yi) = unp2 xyi
 hline :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b))
       => Double -> Double -> Diagram b
 hline xi xf = line (mkP2 xi 0) (mkP2 xf 0)
+
 
 vline :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b))
       => Double -> Double -> Diagram b
