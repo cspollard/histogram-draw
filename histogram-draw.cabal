@@ -19,8 +19,9 @@ library
   exposed-modules:     Graphics.Histo
   -- other-modules:       
   other-extensions:    NoMonomorphismRestriction, TypeFamilies, FlexibleContexts
-  build-depends:       base >=5.8 && <4.9
+  build-depends:       base >=4.8 && <4.9
                      , semigroups >=0.15
+                     , histogram-fill >=0.8 && <0.9
                      , diagrams-lib >=1.3
                      , diagrams-pgf >=0.1
   hs-source-dirs:      src
@@ -37,7 +38,6 @@ executable drawPoints
                      , diagrams-lib >=1.3
                      , diagrams-pgf >=0.1
                      , palette >=0.1
-                     , hhep >=0.1
 
   default-language:    Haskell2010
   ghc-options:         -Wall

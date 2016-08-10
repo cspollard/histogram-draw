@@ -8,7 +8,6 @@ import Numeric (showGFloat, floatToDigits)
 
 import Data.Maybe (fromMaybe)
 
-import Data.TypeList
 import Data.Histogram
 
 import Diagrams.Backend.PGF
@@ -29,14 +28,16 @@ type PtErr2D = ((Double, (Double, Double)), (Double, (Double, Double)))
 
 type Graph2D = [PtErr2D]
 
-histToGraph :: Histo1D -> Graph2D
+histToGraph :: (BinValue b ~ Double) => Histogram b Double -> Graph2D
 histToGraph = map toPoint . toTuples
     where
-        toPoint ((Z :. xlo, Z :. xhi), d :. _) = let x0 = (xlo+xhi)/2.0 in
-                                    ((x0, (xhi-x0, x0-xlo)), let xw = (xhi-xlo) in (sumw d / xw, dup (uncert d / xw)))
-        uncert d = sqrt(sumw2 d)
+        -- TODO
+        -- should be the average x value...
+        toPoint ((xlo, xhi), d) = let x0 = (xlo+xhi)/2.0 in
+                                    ((x0, (xhi-x0, x0-xlo)), d)
 
 
+{-
 forceDimensions :: (V b ~ V2, N b ~ Double)
                 => (Double, Double) -> Diagram b -> (Transformation V2 Double, Diagram b)
 forceDimensions (w', h') d = let w = width d
@@ -142,3 +143,4 @@ avg x y = (x+y) / 2
 
 dup :: a -> (a, a)
 dup x = (x, x)
+-}
