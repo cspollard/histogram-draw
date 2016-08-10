@@ -7,14 +7,16 @@ import Diagrams.TwoD.Text
 import Numeric (showGFloat, floatToDigits)
 
 import Data.Maybe (fromMaybe)
+import qualified Data.Vector.Unboxed as V
 
-import Data.Histogram
+import Data.Histogram (Bin, IntervalBin, BinValue, Histogram)
+import qualified Data.Histogram as H
 
 import Diagrams.Backend.PGF
 
 -- TODO
 -- move
--- type
+renderHistos :: (IntervalBin b, BinValue b ~ Double) => FilePath -> Double -> [Histogram b Double] -> IO ()
 renderHistos outfile w hs = renderPGF' outfile opts $
                                 let (t, d) = forceDimensions (1, 1) . mconcat
                                                 $ map (drawGraph . histToGraph) hs
@@ -28,16 +30,17 @@ type PtErr2D = ((Double, (Double, Double)), (Double, (Double, Double)))
 
 type Graph2D = [PtErr2D]
 
-histToGraph :: (BinValue b ~ Double) => Histogram b Double -> Graph2D
+histToGraph :: (Bin b, IntervalBin b, BinValue b ~ Double) => Histogram b Double -> Graph2D
 histToGraph = map toPoint . toTuples
-    where
-        -- TODO
-        -- should be the average x value...
-        toPoint ((xlo, xhi), d) = let x0 = (xlo+xhi)/2.0 in
-                                    ((x0, (xhi-x0, x0-xlo)), d)
+    where toPoint ((xlo, xhi), d) = let x0 = (xlo+xhi)/2.0
+                                 in  ((x0, (xhi-x0, x0-xlo)), (d, (0, 0)))
+
+          toTuples :: (Bin b, H.IntervalBin b, V.Unbox v) => Histogram b v -> [((BinValue b, BinValue b), v)]
+          toTuples h = let bs = H.bins h
+                           xs = H.histData h
+                       in  map (\i -> (H.binInterval bs i, xs V.! i)) [0..H.nBins bs]
 
 
-{-
 forceDimensions :: (V b ~ V2, N b ~ Double)
                 => (Double, Double) -> Diagram b -> (Transformation V2 Double, Diagram b)
 forceDimensions (w', h') d = let w = width d
@@ -143,4 +146,3 @@ avg x y = (x+y) / 2
 
 dup :: a -> (a, a)
 dup x = (x, x)
--}

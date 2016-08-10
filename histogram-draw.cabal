@@ -20,6 +20,7 @@ library
   -- other-modules:       
   other-extensions:    NoMonomorphismRestriction, TypeFamilies, FlexibleContexts
   build-depends:       base >=4.8 && <4.9
+                     , vector >=0.11
                      , semigroups >=0.15
                      , histogram-fill >=0.8 && <0.9
                      , diagrams-lib >=1.3
