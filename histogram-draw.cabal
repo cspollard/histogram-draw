@@ -39,6 +39,8 @@ executable drawPoints
                      , diagrams-lib >=1.3
                      , diagrams-pgf >=0.1
                      , palette >=0.1
+                     , histogram-fill >=0.8 && <0.9
+                     , histogram-draw >=0.1
 
   default-language:    Haskell2010
   ghc-options:         -Wall

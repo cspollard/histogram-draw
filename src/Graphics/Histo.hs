@@ -38,7 +38,7 @@ histToGraph = map toPoint . toTuples
           toTuples :: (Bin b, H.IntervalBin b, V.Unbox v) => Histogram b v -> [((BinValue b, BinValue b), v)]
           toTuples h = let bs = H.bins h
                            xs = H.histData h
-                       in  map (\i -> (H.binInterval bs i, xs V.! i)) [0..H.nBins bs]
+                       in  map (\i -> (H.binInterval bs i, xs V.! i)) [0..(H.nBins bs - 1)]
 
 
 forceDimensions :: (V b ~ V2, N b ~ Double)
@@ -96,7 +96,7 @@ tickSpacing s = let (h:_, e) = floatToDigits 10 s
 axisTicks :: Double -> Double -> [Double]
 axisTicks lo hi = let d = hi-lo
                       s = tickSpacing d
-                      strt = (fromIntegral $ ceiling (lo/s)) * s
+                      strt = (fromIntegral $ (ceiling (lo/s) :: Int)) * s
                   in fromToBy strt hi s
 
 
