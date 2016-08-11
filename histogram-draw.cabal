@@ -60,6 +60,8 @@ executable drawHists
                      , cereal-conduit >=0.7
                      , cereal-text >=0.1
                      , optparse-generic >=1.0
+                     , diagrams-lib >=1.0
+                     , diagrams-pgf >=0.1
                      , histogram-fill >=0.8
                      , histogram-fill-cereal >=0.6
                      , histogram-extras >=0.1
