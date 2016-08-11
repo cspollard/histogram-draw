@@ -2,6 +2,7 @@ flags: {}
 extra-package-dbs: []
 packages:
 - '.'
+- '../histogram-extras.git/'
 extra-deps:
 - diagrams-pgf-0.1.0.4
 - texrunner-0.0.1.1
