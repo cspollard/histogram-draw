@@ -2,7 +2,7 @@
 
 module Graphics.Histo where
 
-import Diagrams.Prelude hiding (diff)
+import Diagrams.Prelude
 import Diagrams.TwoD.Text
 import Numeric (showGFloat, floatToDigits)
 
@@ -56,14 +56,15 @@ forceDimensions (w', h') d = let w = width d
 
 drawGraph :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b))
           => Graph2D -> Diagram b
-drawGraph = mconcat . map drawPoint
+drawGraph = mconcat . map (lw thick . drawPoint)
 
 drawBarChart :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b))
           => Graph2D -> Diagram b
-drawBarChart = mconcat . map drawBar
+drawBarChart = mconcat . map (lw veryThin . drawBar)
 
 
-drawPoint :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b)) => PtErr2D -> Diagram b
+drawPoint :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b))
+          => PtErr2D -> Diagram b
 drawPoint ((x0, (xlo, xhi)), (y0, (ylo, yhi))) = hline (x0-xlo) (x0+xhi) # translateY y0
                                                  `atop`
                                                  vline (y0-ylo) (y0+yhi) # translateX x0
@@ -73,8 +74,8 @@ drawBar ((x0, (xlo, xhi)), (y0, _)) = rect (xhi+xlo) y0 # translateY (y0/2.0)
                                                         # translateX x0
 
 
--- addAxes :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b), Renderable (Text Double) b)
-        -- => Diagram b -> Transformation V2 Double -> Diagram b
+-- TODO
+-- ugly type
 addAxes :: (TrailLike (QDiagram b (V b) (N b) Any), Renderable (Path V2 Double) b, Renderable (Text Double) b, V b ~ V2, N b ~ Double)
         => Transformation V2 Double -> QDiagram b V2 Double Any -> QDiagram b V2 Double Any
 addAxes t d = let (xlo, xhi) = fromMaybe (1, 1) $ extentX d
@@ -84,8 +85,8 @@ addAxes t d = let (xlo, xhi) = fromMaybe (1, 1) $ extentX d
                   xaxispts = map (flip mkP2 ylo') $ axisTicks xlo' xhi'
                   yaxispts = map (mkP2 xlo') $ axisTicks ylo' yhi'
                   tinv = inv t
-              in mconcat [ hline xlo xhi # translateY ylo `atop` mconcat [labTickX xap # translate (r2 . unp2 $ papply tinv xap) | xap <- xaxispts] # lwN 0.005
-                         , vline ylo yhi # translateX xlo `atop` mconcat [labTickY yap # translate (r2 . unp2 $ papply tinv yap) | yap <- yaxispts] # lwN 0.005
+              in mconcat [ hline xlo xhi # translateY ylo `atop` mconcat [labTickX xap # translate (r2 . unp2 $ papply tinv xap) | xap <- xaxispts]
+                         , vline ylo yhi # translateX xlo `atop` mconcat [labTickY yap # translate (r2 . unp2 $ papply tinv yap) | yap <- yaxispts]
                          , d
                          ]
 
@@ -113,7 +114,6 @@ fromToBy :: Double -> Double -> Double -> [Double]
 fromToBy strt stp dist = take (ceiling $ (stp-strt)/dist) $ iterate (+dist) strt
 
 
--- labTickX, minTickX, labTickY, minTickY :: P2 (N b) -> Diagram b
 labTickX, minTickX, labTickY, minTickY
     :: (TypeableFloat n, Renderable (Path V2 n) b, Renderable (Text n) b)
     => P2 n -> QDiagram b V2 n Any
@@ -146,13 +146,5 @@ vline :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b))
 vline yi yf = line (mkP2 0 yi) (mkP2 0 yf)
 
 
--- TODO
--- some utility that certainly exists elsewhere...
-diff :: Num a => a -> a -> a
-diff = (-)
-
 avg :: Fractional a => a -> a -> a
 avg x y = (x+y) / 2
-
-dup :: a -> (a, a)
-dup x = (x, x)
