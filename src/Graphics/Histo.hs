@@ -58,27 +58,34 @@ drawGraph :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b))
           => Graph2D -> Diagram b
 drawGraph = mconcat . map drawPoint
 
+drawBarChart :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b))
+          => Graph2D -> Diagram b
+drawBarChart = mconcat . map drawBar
+
 
 drawPoint :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b)) => PtErr2D -> Diagram b
 drawPoint ((x0, (xlo, xhi)), (y0, (ylo, yhi))) = hline (x0-xlo) (x0+xhi) # translateY y0
                                                  `atop`
                                                  vline (y0-ylo) (y0+yhi) # translateX x0
 
+drawBar :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b)) => PtErr2D -> Diagram b
+drawBar ((x0, (xlo, xhi)), (y0, _)) = rect (xhi+xlo) y0 # translateY (y0/2.0)
+                                                        # translateX x0
 
 
 -- addAxes :: (InSpace V2 Double (Diagram b), TrailLike (Diagram b), Renderable (Text Double) b)
         -- => Diagram b -> Transformation V2 Double -> Diagram b
 addAxes :: (TrailLike (QDiagram b (V b) (N b) Any), Renderable (Path V2 Double) b, Renderable (Text Double) b, V b ~ V2, N b ~ Double)
         => Transformation V2 Double -> QDiagram b V2 Double Any -> QDiagram b V2 Double Any
-addAxes t d = let (xlo, xhi) = fromMaybe (0, 1) $ extentX d
-                  (ylo, yhi) = fromMaybe (0, 1) $ extentY d
+addAxes t d = let (xlo, xhi) = fromMaybe (1, 1) $ extentX d
+                  (ylo, yhi) = fmap (*1.1) $ fromMaybe (1, 1) $ extentY d
                   (xlo', ylo') = unp2 . papply t $ mkP2 xlo ylo
                   (xhi', yhi') = unp2 . papply t $ mkP2 xhi yhi
                   xaxispts = map (flip mkP2 ylo') $ axisTicks xlo' xhi'
                   yaxispts = map (mkP2 xlo') $ axisTicks ylo' yhi'
                   tinv = inv t
-              in mconcat [ hline xlo xhi # translateY ylo `atop` mconcat [labTickX xap # translate (r2 . unp2 $ papply tinv xap) | xap <- xaxispts]
-                         , vline ylo yhi # translateX xlo `atop` mconcat [labTickY yap # translate (r2 . unp2 $ papply tinv yap) | yap <- yaxispts]
+              in mconcat [ hline xlo xhi # translateY ylo `atop` mconcat [labTickX xap # translate (r2 . unp2 $ papply tinv xap) | xap <- xaxispts] # lwN 0.005
+                         , vline ylo yhi # translateX xlo `atop` mconcat [labTickY yap # translate (r2 . unp2 $ papply tinv yap) | yap <- yaxispts] # lwN 0.005
                          , d
                          ]
 
